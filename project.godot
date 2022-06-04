@@ -1,0 +1,81 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "Node2D",
+"class": "Ball",
+"language": "GDScript",
+"path": "res://ball/Ball.gd"
+}, {
+"base": "Resource",
+"class": "Collisions",
+"language": "GDScript",
+"path": "res://misc/Collisions.gd"
+}, {
+"base": "Node2D",
+"class": "Paddle",
+"language": "GDScript",
+"path": "res://paddle/paddle.gd"
+}, {
+"base": "Paddle",
+"class": "PaddleH",
+"language": "GDScript",
+"path": "res://paddle/PaddleH.gd"
+}, {
+"base": "Node2D",
+"class": "Score",
+"language": "GDScript",
+"path": "res://misc/Score.gd"
+}, {
+"base": "Node2D",
+"class": "Target",
+"language": "GDScript",
+"path": "res://misc/target.gd"
+}, {
+"base": "Node2D",
+"class": "Title",
+"language": "GDScript",
+"path": "res://misc/Title.gd"
+} ]
+_global_script_class_icons={
+"Ball": "",
+"Collisions": "",
+"Paddle": "",
+"PaddleH": "",
+"Score": "",
+"Target": "",
+"Title": ""
+}
+
+[application]
+
+config/name="pongGD"
+run/main_scene="res://main.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+Screen="*res://misc/Screen.gd"
+
+[display]
+
+window/stretch/mode="viewport"
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[rendering]
+
+quality/driver/driver_name="GLES2"
+vram_compression/import_etc=true
+vram_compression/import_etc2=false
+environment/default_clear_color=Color( 0, 0, 0, 1 )
+environment/default_environment="res://default_env.tres"
