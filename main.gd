@@ -6,7 +6,7 @@ const IMPACT = preload("res://SFX/sfx_sounds_interaction7.wav")
 const WIN = preload("res://SFX/sfx_sounds_fanfare3.wav")
 const LOST = preload("res://SFX/sfx_sounds_damage3.wav")
 
-enum COLLIDED {PLAYER = 1, ENEMY = 2, PLAYER_H = 3, ENEMY_H = 4}
+#enum COLLIDED {PLAYER = 1, ENEMY = 2, PLAYER_H = 3, ENEMY_H = 4}
 
 var Play  :  bool setget set_game
 var title := Title.new(64)
@@ -24,6 +24,7 @@ var enemyTarget : Target
 var ball :  Ball
 var beep := AudioStreamPlayer.new()
 
+var touched = false
 
 func _ready() -> void:
 	Screen.get_screen(get_tree().get_root().size)
@@ -48,6 +49,8 @@ func render_game() -> void:
 	add_children([beep, title, ball, player, playerH, playerScore, playerTarget, enemy, enemyH, enemyScore, enemyTarget])
 	set_game(Play)
 	enemyTarget.rotation_degrees = 180
+	
+	ball.restart()
 
 
 func add_children(children: Array):
@@ -63,13 +66,10 @@ func set_game(value):
 
 func _physics_process(delta: float) -> void:
 	if !Play:
-		if ball.acceleration != 0: # needs to set only once
-			ball.restart()
-			ball.acceleration = 0
 		if Input.is_mouse_button_pressed(BUTTON_LEFT): self.Play = true; ball.acceleration = 1.0
 	else:
+		check_collision_field()
 		handle_ball(delta)
-		handle_collisions()
 		handle_enemy(delta)
 	player.position.y =  clamp(get_local_mouse_position().y, 0, Screen.screenSize.y - player.paddleSize.y)
 	playerH.position.x = clamp(get_local_mouse_position().x, 0, Screen.screenSize.x - playerH.paddleSize.x)
@@ -82,42 +82,53 @@ func handle_ball(delta) -> void:
 	if ball.out():
 		self.Play = false
 		if ball.position.x <= 0 or ball.position.y >= Screen.screenSize.y:
-#			turn.x = 1
 			enemyScore.points += 1
 			beep.stream = LOST
 			beep.play()
 		elif ball.position.x >= Screen.screenSize.x or ball.position.y <= 0 : 
-#			turn.x = -1
 			playerScore.points += 1
 			beep.stream = WIN
 			beep.play()
+		ball.restart()
+		newColor()
 
 
-func handle_collisions() -> void:
-	var entity := false
-
-	if Collisions.pointToRect(ball.position, Rect2(player.position, player.paddleSize)): 
-		entity = true
-		player.changeBallDirection(ball)
-		
-	elif Collisions.pointToRect(ball.position, Rect2(enemy.position,  enemy.paddleSize)):
-		entity = true
-		enemy.changeBallDirection(ball)
-		enemy.change_enemy_pos()
-	elif Collisions.pointToRect(ball.position, Rect2(playerH.position, playerH.paddleSize)):
-		entity = true
-		playerH.changeBallDirection(ball)
-
-	elif Collisions.pointToRect(ball.position, Rect2(enemyH.position,  enemyH.paddleSize)):
-		entity = true
-		enemyH.changeBallDirection(ball)
-		enemyH.change_enemy_pos()
+func handle_collisions():
+	var entity := true
+	if Collisions.pointToRect(ball.position, Rect2(player.position, player.paddleSize)) and ball.speed.x < 0: 
+		if !touched:
+			player.changeBallDirection(ball)
+	elif Collisions.pointToRect(ball.position, Rect2(enemy.position,  enemy.paddleSize)) and ball.speed.x > 0:
+		if !touched:
+			enemy.changeBallDirection(ball)
+			enemy.change_enemy_pos()
+	elif Collisions.pointToRect(ball.position, Rect2(playerH.position, playerH.paddleSize)) and ball.speed.y > 0 :
+		if !touched:
+			playerH.changeBallDirection(ball)
+	elif Collisions.pointToRect(ball.position, Rect2(enemyH.position,  enemyH.paddleSize)) and ball.speed.y < 0:
+		if !touched:
+			enemyH.changeBallDirection(ball)
+			enemyH.change_enemy_pos()
+	else:
+		entity = false
 
 	if entity:
 		ball.acceleration += 0.2
 		newColor()
 		beep.stream = IMPACT
 		beep.play()
+		touched = true
+
+func check_collision_field() -> void:
+	if  (ball.position.x <= player.paddleSize.x + player.paddlePadding + player.paddlePadding or
+	ball.position.x >= Screen.screenSize.x - enemy.paddleSize.x - enemy.paddlePadding or
+	ball.position.y >= Screen.screenSize.y - playerH.paddleSize.y or
+	ball.position.y <= enemyH.paddleSize.y + enemyH.paddlePadding):
+		handle_collisions()
+	else:
+		touched = false
+
+
 
 
 func handle_enemy(delta) -> void:
@@ -139,13 +150,16 @@ func handle_enemy(delta) -> void:
 
 
 func newColor():
-	# pallete from https://lospec.com/palette-list/paintnet-base-colors
-	# should change, probably more saturation
-	var pallete := [ 
-	'#808080', '#ffffff', '#7f0000', '#ff0000', '#7f3300', '#ff6a00', '#7f6a00', '#ffd800', '#5b7f00',
-	'#b6ff00', '#267f00', '#4cff00', '#007f0e', '#00ff21', '#007f46', '#00ff90', '#007f7f', '#00ffff',
-	'#004a7f', '#0094ff', '#00137f', '#0026ff', '#21007f', '#4800ff', '#57007f', '#b200ff', '#7f006e',
-	'#ff00dc', '#7f0037', '#ff006e ' ]
+	# pallete from https://lospec.com/palette-list/blk-nx64
+
+	var pallete := ['#12173d','#293268','#464b8c','#6b74b2','#909edd','#c1d9f2','#ffffff','#a293c4',
+	'#7b6aa5','#53427f','#3c2c68','#431e66','#5d2f8c','#854cbf','#b483ef','#8cff9b','#42bc7f','#22896e',
+	'#14665b','#0f4a4c','#0a2a33','#1d1a59','#322d89','#354ab2','#3e83d1','#50b9eb','#8cdaff','#53a1ad',
+	'#3b768f','#21526b','#163755','#008782','#00aaa5','#27d3cb','#78fae6','#cdc599','#988f64','#5c5d41',
+	'#353f23','#919b45','#afd370','#ffe091','#ffaa6e','#ff695a','#b23c40','#ff6675','#dd3745','#a52639',
+	'#721c2f','#b22e69','#e54286','#ff6eaf','#ffa5d5','#ffd3ad','#cc817a','#895654','#61393b','#3f1f3c',
+	'#723352','#994c69','#c37289','#f29faa','#ffccd0 ']
+
 	randomize()
 	var assign := floor(rand_range(0, pallete.size()-1))
 	modulate = pallete[assign]

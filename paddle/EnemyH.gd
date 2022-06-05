@@ -12,12 +12,19 @@ func change_enemy_pos():
 	
 	chasePos = GameMath.pointConversion(rndDist, rndMin, rndMax, minChaseSize, maxChaseSize)
 
+#func changeBallDirection(ball: Ball) -> void:
+#	var magnitude  : float = GameMath.pointConversion(ball.position.x, position.x, position.x + paddleSize.x, -maxMagnitude, maxMagnitude)
+#	var _degree    : float = GameMath.pointConversion(ball.position.x, position.x, position.x + paddleSize.x, -maxRotation,  maxRotation)
+#	magnitude = max(abs(magnitude), 1.0)
+#
+#	ball.set_rotation_and_direction(_degree)
+#	ball.set_magnitude(magnitude)
 
 func changeBallDirection(ball: Ball) -> void:
-	var magnitude  : float = GameMath.pointConversion(ball.position.x, position.x, position.x+ paddleSize.x, maxMagnitude, -maxMagnitude)
-	var _degree    : float = GameMath.pointConversion(ball.position.x, position.x, position.x + paddleSize.x, -maxRotation,  -maxRotation)
+	var magnitude  : float = GameMath.pointConversion(ball.position.y, position.y, position.y+ paddleSize.y, maxMagnitude, -maxMagnitude)
+	var _degree    : float = GameMath.pointConversion(ball.position.y, position.y, position.y+ paddleSize.y, maxRotation, -maxRotation)
 	
 	magnitude = max(abs(magnitude), 1.0)
-	if _degree >= 0: _degree *=- 1 
-	ball.set_rotation_and_directionY(_degree)
+	ball.set_rotation_and_direction(_degree)
+	if ball.speed.y < 0 : ball.speed *= -1
 	ball.set_magnitude(magnitude)

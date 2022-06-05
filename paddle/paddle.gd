@@ -18,10 +18,9 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, paddleSize), Color.white)
 
 func changeBallDirection(ball: Ball) -> void:
-	var magnitude : float = GameMath.pointConversion(ball.position.y, position.y, position.y+ paddleSize.y, maxMagnitude, -maxMagnitude)
+	var magnitude  : float = GameMath.pointConversion(ball.position.y, position.y, position.y+ paddleSize.y, maxMagnitude, -maxMagnitude)
 	var _degree    : float = GameMath.pointConversion(ball.position.y, position.y, position.y+ paddleSize.y, maxRotation, -maxRotation)
 	
 	magnitude = max(abs(magnitude), 1.0)
-	if _degree >= 0: _degree *=- 1 
 	ball.set_rotation_and_direction(_degree)
 	ball.set_magnitude(magnitude)

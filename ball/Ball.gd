@@ -15,6 +15,7 @@ func _init() -> void:
 func restart() -> void:
 	position = START_POS
 	speed = START_SPEED
+	acceleration = 0
 	update()
 
 func out() -> bool:
@@ -46,7 +47,7 @@ func set_rotation_and_directionY(_degree):
 	direction = acceleration if speed.y > 0 else -acceleration
 	var _rotate = GameMath.vectorRotation(START_SPEED, _degree)
 	_rotate.y *= direction
-	
+	print(_rotate)
 	speed = _rotate
 	
 
